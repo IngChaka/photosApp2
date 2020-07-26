@@ -13,6 +13,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
 
     var myCollectionView: UICollectionView!
     var imageArray=[UIImage]()
+    var passedContentOffset = IndexPath()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,6 +36,42 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
         grabPhotos()
         
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imageArray.count
+    }
+    
+    func colleciotnView(_ colleciotView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell=collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for:indexPath) as! PhotoItemCell
+        cell.img.image=imageArray[indexPath.item]
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print(indexPath)
+        let vc=ImagePreviewVC()
+        vc.imgArray = self.imageArray
+        vc.passedContentOffset = indexPath
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = collectionView.frame.width
+        if DeviceInfo.Orientation.isPortrait {
+            return CGSize(width: width/4 - 1, height: width/4 - 1)
+        } else {
+            return CGSize(width: width/6 - 1, height: width/6 - 1)
+        }
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        myCollectionView.collectionViewLayout.invalidateLayout()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 1.0
     }
     
     func grabPhotos(){
@@ -96,5 +133,19 @@ class PhotoItemCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     }
+}
+
+struct DeviceInfo {
+    struct Orientation {
+        static var isLandscape: Bool {
+            get {
+                return UIDevice.current.orientation.isValidInterfaceOrientation? UIDevice.current.orientation.isLandscape: UIApplication.shared.statusBarOrientation.isLandscape
+            }
+        }
+        static var isPortrait: Bool {
+            get {
+                return UIDevice.current.orientation.isValidInterfaceOrientation? UIDevice.current.orientation.isPortrait: UIApplication.shared.statusBarOrientation.isPortrait
+            }
+        }    }
 }
 

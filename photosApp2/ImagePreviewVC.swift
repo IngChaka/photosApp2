@@ -11,7 +11,7 @@ import UIKit
 class ImagePreviewVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
 
     var myCollectionView: UICollectionView!
-    var imageArray=[UIImage]()
+    var imgArray=[UIImage]()
     var passedContentOffset = IndexPath()
 
     override func viewDidLoad() {
@@ -35,9 +35,7 @@ class ImagePreviewVC: UIViewController, UICollectionViewDelegate, UICollectionVi
         
         self.view.addSubview(myCollectionView)
         
-        myCollectionView.autoresizingMask = UIView.Autoresizing(rawValue:
-        UIView.Autoresizing.RawValue(UInt8(UIView.Autoresizing.flexibleWidth.rawValue) |
-            UInt8(UIView.Autoresizing.flexibleHeight.rawValue)))
+        //myCollectionView.autoresizingMask = UIView.Autoresizing(rawValue:UIView.Autoresizing.RawValue(UInt8(UIView.Autoresizing.flexibleWidth.rawValue)|UInt8(UIView.Autoresizing.flexibleHeight.rawValue)))
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

@@ -29,9 +29,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         myCollectionView.backgroundColor=UIColor.white
         self.view.addSubview(myCollectionView)
         
-        myCollectionView.autoresizingMask = UIView.Autoresizing(rawValue:
-            UIView.Autoresizing.RawValue(UInt8(UIView.Autoresizing.flexibleWidth.rawValue) |
-                UInt8(UIView.Autoresizing.flexibleHeight.rawValue)))
+        //myCollectionView.autoresizingMask = UIView.Autoresizing(rawValue: UIView.Autoresizing.RawValue(UInt8(UIView.Autoresizing.flexibleWidth.rawValue) | UInt8(UIView.Autoresizing.flexibleHeight.rawValue)))
         
         grabPhotos()
         
@@ -135,12 +133,16 @@ struct DeviceInfo {
     struct Orientation {
         static var isLandscape: Bool {
             get {
-                return UIDevice.current.orientation.isValidInterfaceOrientation? UIDevice.current.orientation.isLandscape: UIApplication.shared.statusBarOrientation.isLandscape
+                return UIDevice.current.orientation.isValidInterfaceOrientation
+                    ? UIDevice.current.orientation.isLandscape
+                    : UIApplication.shared.statusBarOrientation.isLandscape
             }
         }
         static var isPortrait: Bool {
             get {
-                return UIDevice.current.orientation.isValidInterfaceOrientation? UIDevice.current.orientation.isPortrait: UIApplication.shared.statusBarOrientation.isPortrait
+                return UIDevice.current.orientation.isValidInterfaceOrientation
+                    ? UIDevice.current.orientation.isPortrait
+                    : UIApplication.shared.statusBarOrientation.isPortrait
             }
         }
     }

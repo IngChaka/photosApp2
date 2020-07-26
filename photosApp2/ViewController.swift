@@ -36,6 +36,41 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         grabPhotos()
         
     }
+    
+    func grabPhotos(){
+        imageArray = []
+        
+        DispatchQueue.global(qos: .background).async {
+            print("This is run in the background queue")
+            let imgManager=PHImageManager.default()
+            
+            let requestOptions=PHImageRequestOptions()
+                requestOptions.isSynchronous=true
+                requestOptions.deliveryMode = .highQualityFormat
+            
+            let fetchOptions=PHFetchOptions()
+            fetchOptions.sortDescriptors=[NSSortDescriptor(key: "creationDate", ascending: false)]
+            
+            let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+            print(fetchResult.count)
+            if fetchResult.count > 0 {
+                for i in 0..<fetchResult.count{
+                    imgManager.requestImage(for: fetchResult.object(at: i) as PHAsset, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options: requestOptions, resultHandler: { (image, error) in self.imageArray.append(image!)
+                        
+                    })
+                }
+            } else {
+                print("You got no photos.")
+            }
+            print("imageArray count: \(self.imageArray.count)")
+            
+            DispatchQueue.main.async {
+                print("This is run on the main queue, after the previous code in outer block")
+                self.myCollectionView.reloadData()
+            }
+            
+            
+        }
 
 
 }

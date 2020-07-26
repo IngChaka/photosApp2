@@ -13,7 +13,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
 
     var myCollectionView: UICollectionView!
     var imageArray=[UIImage]()
-    var passedContentOffset = IndexPath()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,7 +41,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         return imageArray.count
     }
     
-    func colleciotnView(_ colleciotView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell=collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for:indexPath) as! PhotoItemCell
         cell.img.image=imageArray[indexPath.item]
         return cell
@@ -78,22 +77,23 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         imageArray = []
         
         DispatchQueue.global(qos: .background).async {
-            print("This is run in the background queue")
+            print("This is run on the background queue")
             let imgManager=PHImageManager.default()
             
             let requestOptions=PHImageRequestOptions()
-                requestOptions.isSynchronous=true
-                requestOptions.deliveryMode = .highQualityFormat
+            requestOptions.isSynchronous=true
+            requestOptions.deliveryMode = .highQualityFormat
             
             let fetchOptions=PHFetchOptions()
-            fetchOptions.sortDescriptors=[NSSortDescriptor(key: "creationDate", ascending: false)]
+            fetchOptions.sortDescriptors=[NSSortDescriptor(key:"creationDate", ascending: false)]
             
             let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+            print(fetchResult)
             print(fetchResult.count)
             if fetchResult.count > 0 {
                 for i in 0..<fetchResult.count{
-                    imgManager.requestImage(for: fetchResult.object(at: i) as PHAsset, targetSize: CGSize(width:500, height: 500), contentMode: .aspectFill, options: requestOptions, resultHandler: { (image, error) in self.imageArray.append(image!)
-                        
+                    imgManager.requestImage(for: fetchResult.object(at: i) as PHAsset, targetSize: CGSize(width:500, height: 500),contentMode: .aspectFill, options: requestOptions, resultHandler: { (image, error) in
+                        self.imageArray.append(image!)
                     })
                 }
             } else {
@@ -105,11 +105,8 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 print("This is run on the main queue, after the previous code in outer block")
                 self.myCollectionView.reloadData()
             }
-            
-            
         }
-
-
+    }
 }
 
 class PhotoItemCell: UICollectionViewCell {
@@ -132,7 +129,6 @@ class PhotoItemCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    }
 }
 
 struct DeviceInfo {
@@ -146,6 +142,7 @@ struct DeviceInfo {
             get {
                 return UIDevice.current.orientation.isValidInterfaceOrientation? UIDevice.current.orientation.isPortrait: UIApplication.shared.statusBarOrientation.isPortrait
             }
-        }    }
+        }
+    }
 }
 

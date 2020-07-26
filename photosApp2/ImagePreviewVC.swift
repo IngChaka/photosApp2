@@ -39,6 +39,45 @@ class ImagePreviewVC: UIViewController, UICollectionViewDelegate, UICollectionVi
         UIView.Autoresizing.RawValue(UInt8(UIView.Autoresizing.flexibleWidth.rawValue) |
             UInt8(UIView.Autoresizing.flexibleHeight.rawValue)))
     }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imgArray.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell=collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImagePreviewFullViewCell
+        cell.imgView.image=imgArray[indexPath.row]
+        return cell
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        guard let flowLayout = myCollectionView.collectionViewLayout as? UICollectionViewFlowLayout else { return }
+        
+        flowLayout.itemSize = myCollectionView.frame.size
+        
+        flowLayout.invalidateLayout()
+        
+        myCollectionView.collectionViewLayout.invalidateLayout()
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        let offset = myCollectionView.contentOffset
+        let width  = myCollectionView.bounds.size.width
+        
+        let index = round(offset.x / width)
+        let newOffset = CGPoint(x: index * size.width, y: offset.y)
+        
+        myCollectionView.setContentOffset(newOffset, animated: false)
+        
+        coordinator.animate(alongsideTransition: { (context) in
+            self.myCollectionView.reloadData()
+            
+            self.myCollectionView.setContentOffset(newOffset, animated: false)
+        }, completion: nil)
+    }
 }
 
 class ImagePreviewFullViewCell: UICollectionViewCell, UIScrollViewDelegate {
@@ -60,7 +99,7 @@ class ImagePreviewFullViewCell: UICollectionViewCell, UIScrollViewDelegate {
         scrollImg.maximumZoomScale = 4.0
         
         let doubleTapGest = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTapScrollView(recognizer:)))
-        doubleTapGest.numberOfTapsRequiered = 2
+        doubleTapGest.numberOfTapsRequired = 2
         scrollImg.addGestureRecognizer(doubleTapGest)
         
         self.addSubview(scrollImg)
@@ -74,12 +113,40 @@ class ImagePreviewFullViewCell: UICollectionViewCell, UIScrollViewDelegate {
     
     @objc func handleDoubleTapScrollView(recognizer: UITapGestureRecognizer) {
         if scrollImg.zoomScale == 1 {
-            scrollImg.zoom(to: zoomRectForScale(scale: scrollImg.maximumZoomScale, center: recognizer.location(in: recognizer.vie)), animated: true)
+            scrollImg.zoom(to: zoomRectForScale(scale: scrollImg.maximumZoomScale, center: recognizer.location(in: recognizer.view)), animated: true)
         } else {
             scrollImg.setZoomScale(1, animated: true)
         }
     }
     
+    func zoomRectForScale(scale: CGFloat, center: CGPoint) -> CGRect {
+        var zoomRect = CGRect.zero
+        zoomRect.size.height = imgView.frame.size.height / scale
+        zoomRect.size.width  = imgView.frame.size.width  / scale
+        let newCenter = imgView.convert(center, from: scrollImg)
+        zoomRect.origin.x = newCenter.x - (zoomRect.size.width / 2.0)
+        zoomRect.origin.y = newCenter.y - (zoomRect.size.height / 2.0)
+        return zoomRect
+    }
+    
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.imgView
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        scrollImg.frame = self.bounds
+        imgView.frame = self.bounds
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        scrollImg.setZoomScale(1, animated: true)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
 }
 
